@@ -1,0 +1,17 @@
+{
+  "name": "consent-firewall",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "python -m pytest -q",
+    "schema:studio-next": "node scripts/check-schema.mjs",
+    "deploy:studio-next": "node scripts/deploy.mjs",
+    "inspect:studio-next": "node scripts/inspect.mjs",
+    "test:live": "node scripts/live-suite.mjs"
+  },
+  "dependencies": {
+    "genlayer-js": "2.0.0-rc.1",
+    "viem": "2.38.6"
+  }
+}

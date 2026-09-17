@@ -1,0 +1,20 @@
+import { readFile } from "node:fs/promises";
+import { createAccount, createClient } from "genlayer-js";
+import { TransactionStatus } from "genlayer-js/types";
+import { studioNext } from "./network.mjs";
+
+let input = "";
+for await (const chunk of process.stdin) input += String(chunk);
+const matches = input.match(/[0-9a-fA-F]{64}/g) ?? [];
+input = "";
+if (matches.length !== 1) throw new Error("Provide exactly one deployer private key through stdin");
+const account = createAccount(`0x${matches[0]}`);
+matches.fill("");
+const client = createClient({ chain: studioNext, account });
+const code = await readFile(new URL("../contracts/consent_firewall.py", import.meta.url), "utf8");
+const estimate = await client.estimateTransactionFees();
+const hash = await client.deployContract({ code, args: [], fees: { distribution: estimate.distribution, feeValue: estimate.feeValue } });
+process.stdout.write(`deployer=${account.address}\ndeploy=${hash}\n`);
+const receipt = await client.waitForTransactionReceipt({ hash, status: TransactionStatus.FINALIZED, interval: 2000, retries: 300 });
+const address = receipt?.contractAddress || receipt?.data?.contractAddress || receipt?.result?.contractAddress || "";
+process.stdout.write(`finalized=true\ncontract=${address}\n`);
