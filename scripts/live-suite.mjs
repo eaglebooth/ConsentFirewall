@@ -18,12 +18,27 @@ const unwrap = raw => {
 };
 
 async function readKeys() {
-  let input = "";
-  for await (const chunk of process.stdin) input += String(chunk);
-  const keys = input.match(/[0-9a-fA-F]{64}/g) ?? [];
-  input = "";
-  if (keys.length !== 2) throw new Error("Provide exactly two test private keys through stdin");
-  return keys;
+  if (process.stdin.isTTY && process.stdin.setRawMode) process.stdin.setRawMode(true);
+  process.stdin.resume();
+  const keys = [];
+  let line = "";
+  for await (const chunk of process.stdin) for (const character of String(chunk)) {
+    if (character === "\u0003") throw new Error("Cancelled");
+    if (character === "\r" || character === "\n") {
+      if (!line) continue;
+      const matches = line.match(/[0-9a-fA-F]{64}/g) ?? [];
+      line = "";
+      if (matches.length !== 1) throw new Error("Each line must contain exactly one private key");
+      keys.push(matches[0]);
+      if (keys.length === 2) {
+        if (process.stdin.isTTY && process.stdin.setRawMode) process.stdin.setRawMode(false);
+        return keys;
+      }
+    } else {
+      line += character;
+    }
+  }
+  throw new Error("Provide exactly two test private keys through stdin");
 }
 
 function rejection(tx, receipt) {
