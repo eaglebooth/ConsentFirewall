@@ -61,9 +61,16 @@ genvm-lint contracts\consent_firewall.py
 npm run schema:studio-next
 ```
 
-## Studio Next test deployments (superseded)
+## Studio Next deployment
 
+- Active V3 contract: [`0x7d6B664b0bE5CdC11efB39c2201371C1F39D4981`](https://explorer-studio-dev.genlayer.com/address/0x7d6B664b0bE5CdC11efB39c2201371C1F39D4981)
 - Network: Studio Next, chain `61997`
+- Live result: strict profile `CONFLICT`, permissive profile `COMPATIBLE`,
+  wrong digest `UNRESOLVED`
+- Complete transaction evidence: [`docs/LIVE_E2E_EVIDENCE.md`](docs/LIVE_E2E_EVIDENCE.md)
+
+## Superseded test deployments
+
 - Contract: [`0x8887E688Bc8F53be27052Ab559E03b542116B4A9`](https://explorer-studio-dev.genlayer.com/address/0x8887E688Bc8F53be27052Ab559E03b542116B4A9)
 - Version readback: `CONSENT_FIREWALL_V1`
 - Initial state: zero profiles, versions, snapshots, checks and outcomes

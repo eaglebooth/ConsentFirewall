@@ -1,5 +1,79 @@
 # ConsentFirewall — Studio Next live evidence
 
+## V3 completed matrix
+
+Verified on Studio Next, chain `61997`, against
+[`0x7d6B664b0bE5CdC11efB39c2201371C1F39D4981`](https://explorer-studio-dev.genlayer.com/address/0x7d6B664b0bE5CdC11efB39c2201371C1F39D4981).
+
+- Contract version: `CONSENT_FIREWALL_V3`
+- Scenario: `1789620038345`
+- Strict profile owner: `0xeb57bc7125fa60d7482ce12058397369ab3581f8`
+- Permissive profile owner: `0x2da5393d7bbb9a037dc3abb56dbbc5c150fc843f`
+- Immutable fixture: commit `ab767ac80c811d464e67828d06a8c90f9450ee50`
+- Observed SHA-256: `ad0204016e3dcba0a5141635d5ba195b7cdcacf50751cc4638cba00b688b67d6`
+
+### Failure-first and setup transactions
+
+| Step | Finalized transaction | Result |
+|---|---|---|
+| Create strict profile | [`0x812026…b0dd`](https://explorer-studio-dev.genlayer.com/tx/0x8120266f95486b6a899b1a82614176e87de3fafd9806ef9b9529c6d66ce2b0dd) | Success |
+| Non-owner publishes profile version | [`0xf90e20…7bb5`](https://explorer-studio-dev.genlayer.com/tx/0xf90e20ba25fd4dcff1ce9f3f1d5c74115ae883e76bb7de5c88852a1d748a7bb5) | `PROFILE_OWNER_ONLY` rollback |
+| Duplicate profile | [`0x07cf49…9cb5`](https://explorer-studio-dev.genlayer.com/tx/0x07cf49588232cb485ac03f13f00ef3544d1c1fb27db4ed6b846626e1c23d9cb5) | `INVALID_OR_DUPLICATE_PROFILE` rollback |
+| Register policy snapshot | [`0xf2029c…a5b4`](https://explorer-studio-dev.genlayer.com/tx/0xf2029ce7197328bfa8b57e15e27260ead876906e3a720946a2a64fa7dcb3a5b4) | Success |
+| Duplicate source bytes | [`0x3d9831…7633`](https://explorer-studio-dev.genlayer.com/tx/0x3d98312e3e21a7db6c202b8000d36bca464e5be2140e6236f0509f57942b7633) | `POLICY_CONTENT_ALREADY_REGISTERED` rollback |
+| Open strict check | [`0x62309b…488a`](https://explorer-studio-dev.genlayer.com/tx/0x62309b894e463241e9a59e37c3231333304b779d511c8d75ee7992789e49488a) | Success |
+| Non-owner opens strict check | [`0xbaf4f0…5dcc`](https://explorer-studio-dev.genlayer.com/tx/0xbaf4f0349e2e7f2512725a8a890b1c928cd4861ec9b3e0561eebe22263ec5dcc) | `PROFILE_OWNER_ONLY` rollback |
+
+### Semantic results
+
+| Step | Finalized transaction | Authoritative result |
+|---|---|---|
+| Assess strict profile | [`0xc3848f…c3e4`](https://explorer-studio-dev.genlayer.com/tx/0xc3848f8be70faeeaf41cfc4bc630adf430d37bb147568cdbdf78be73e153c3e4) | `CONFLICT` |
+| Reassess finalized check | [`0x995cf2…285e`](https://explorer-studio-dev.genlayer.com/tx/0x995cf2cd95697b71329f78c9acfb892cc0664df328b8d5be5fa51922ec18285e) | `CHECK_ALREADY_FINAL` rollback |
+| Create permissive profile | [`0x3473c1…619c`](https://explorer-studio-dev.genlayer.com/tx/0x3473c1da37b357bb39719efd1fd868ee22cbd42849ee42eb6f9f7aa19b5c619c) | Success |
+| Open permissive check | [`0x8b8d87…23c5`](https://explorer-studio-dev.genlayer.com/tx/0x8b8d87c8ff31fc070e10b5a3be5728aace512b3167112aaba1ea19a83bdf23c5) | Success |
+| Assess permissive profile | [`0x65dbde…55ae`](https://explorer-studio-dev.genlayer.com/tx/0x65dbdebae06035c2a8eec11046516fa33b150b552724b3e372fc61d8002555ae) | `COMPATIBLE` |
+| Register deliberately wrong digest | [`0x079d17…82aed`](https://explorer-studio-dev.genlayer.com/tx/0x079d17b166dccd64d6b0cbe9fb57a5d2cd2c381880670f7e0a4d237410d82aed) | Success |
+| Open wrong-digest check | [`0x6da7b6…24c44`](https://explorer-studio-dev.genlayer.com/tx/0x6da7b60d5129c564a2135dbb362b4507fe05ccca294e33d10ffef0c5a5924c44) | Success |
+| Assess wrong digest | [`0x544ce6…4d6b`](https://explorer-studio-dev.genlayer.com/tx/0x544ce658292f35d677f586a074bcf7e4e081389756310b53ec7a20e67edb4d6b) | `UNRESOLVED / SOURCE_DIGEST_MISMATCH` |
+
+Both successful semantic checks stored the same validator-agreed policy vector:
+
+```json
+{
+  "MODEL_TRAINING": "ALLOWED",
+  "DATA_SALE": "PROHIBITED",
+  "THIRD_PARTY_SHARING": "ALLOWED",
+  "BIOMETRIC_PROCESSING": "PROHIBITED",
+  "RETENTION_AFTER_TERMINATION": "ALLOWED"
+}
+```
+
+Deterministic comparison produced conflicts for the strict profile on model
+training, third-party sharing and post-termination retention. The independently
+owned all-`ALLOW` profile was compatible with the same immutable policy vector.
+
+Final authoritative counters:
+
+```json
+{
+  "profiles": "2",
+  "profile_versions": "2",
+  "snapshots": "2",
+  "checks": "3",
+  "compatible": "1",
+  "conflicts": "1",
+  "unresolved": "1"
+}
+```
+
+This proves reproducible source hashing, two-user profile ownership, exact
+five-dimension semantic consensus, deterministic compatibility derivation,
+terminal-check replay protection and fail-closed digest handling. It does not
+authenticate the policy publisher or prove provider behavior or legal compliance.
+
+## Superseded deployments
+
 Verified deployment on Studio Next, chain `61997`:
 
 - Contract: [`0x8887E688Bc8F53be27052Ab559E03b542116B4A9`](https://explorer-studio-dev.genlayer.com/address/0x8887E688Bc8F53be27052Ab559E03b542116B4A9)
