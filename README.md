@@ -61,7 +61,7 @@ genvm-lint contracts\consent_firewall.py
 npm run schema:studio-next
 ```
 
-## Studio Next test deployment (superseded)
+## Studio Next test deployments (superseded)
 
 - Network: Studio Next, chain `61997`
 - Contract: [`0x8887E688Bc8F53be27052Ab559E03b542116B4A9`](https://explorer-studio-dev.genlayer.com/address/0x8887E688Bc8F53be27052Ab559E03b542116B4A9)
@@ -71,6 +71,10 @@ npm run schema:studio-next
   `gl.vm.run_nondet_unsafe`, unavailable in the Studio Next runtime. The local
   V2 source now uses `gl.vm.run_nondet`; a fresh deployment is required before
   claiming semantic E2E success. See `docs/LIVE_E2E_EVIDENCE.md`.
+- V2 at [`0x850bf9E22A69C35EbAF67c109F9148e4ee4adee3`](https://explorer-studio-dev.genlayer.com/address/0x850bf9E22A69C35EbAF67c109F9148e4ee4adee3)
+  passed deterministic boundaries and executed semantic consensus, but finalized
+  `UNRESOLVED / INVALID_CLASSIFICATION`. V3 now makes the model JSON schema exact
+  and accepts equivalent nested or flat five-enum output. V3 requires deployment.
 
 ## Safe claim boundary
 

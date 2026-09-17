@@ -39,6 +39,18 @@ def test_classification_accepts_exact_shape():
     assert result["dimensions"] == VALID_STANCES
 
 
+def test_classification_accepts_flat_exact_shape():
+    flat = dict(VALID_STANCES)
+    flat["rationale"] = "All five classifications are explicit."
+    result = module._normalize_classification(flat)
+    assert result["dimensions"] == VALID_STANCES
+
+
+def test_classification_still_rejects_extra_keys():
+    value = {"dimensions": VALID_STANCES, "rationale": "Clear.", "verdict": "COMPATIBLE"}
+    assert module._normalize_classification(value) == {}
+
+
 def test_classification_accepts_and_validates_observed_digest():
     result = module._normalize_classification({
         "dimensions": VALID_STANCES,

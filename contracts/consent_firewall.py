@@ -123,12 +123,17 @@ def _normalize_classification(value: typing.Any) -> typing.Dict[str, typing.Any]
         item = json.loads(value) if isinstance(value, str) else value
     except Exception:
         return {}
-    if not isinstance(item, dict) or set(item.keys()) not in (
-        {"dimensions", "rationale"},
-        {"dimensions", "rationale", "observed"},
-    ):
+    if not isinstance(item, dict):
         return {}
-    dimensions = item.get("dimensions")
+    allowed_nested = ({"dimensions", "rationale"}, {"dimensions", "rationale", "observed"})
+    allowed_flat = (set(DIMENSIONS) | {"rationale"}, set(DIMENSIONS) | {"rationale", "observed"})
+    keys = set(item.keys())
+    if keys in allowed_nested:
+        dimensions = item.get("dimensions")
+    elif keys in allowed_flat:
+        dimensions = {dimension: item.get(dimension) for dimension in DIMENSIONS}
+    else:
+        return {}
     if not isinstance(dimensions, dict) or set(dimensions.keys()) != set(DIMENSIONS):
         return {}
     normalized: typing.Dict[str, str] = {}
@@ -352,7 +357,14 @@ class ConsentFirewall(gl.contract.Contract):
                     "PROHIBITED means the policy expressly says it will not perform it.\n"
                     "OPT_OUT means it is performed by default or conditionally but a user can opt out.\n"
                     "UNSPECIFIED means the policy does not clearly resolve it.\n"
-                    "Do not decide compatibility or give legal advice. Return JSON only with dimensions and rationale.\n"
+                    "Do not decide compatibility or give legal advice.\n"
+                    "Return exactly this JSON shape with no markdown and no extra keys:\n"
+                    "{\"dimensions\":{\"MODEL_TRAINING\":\"ALLOWED|PROHIBITED|OPT_OUT|UNSPECIFIED\","
+                    "\"DATA_SALE\":\"ALLOWED|PROHIBITED|OPT_OUT|UNSPECIFIED\","
+                    "\"THIRD_PARTY_SHARING\":\"ALLOWED|PROHIBITED|OPT_OUT|UNSPECIFIED\","
+                    "\"BIOMETRIC_PROCESSING\":\"ALLOWED|PROHIBITED|OPT_OUT|UNSPECIFIED\","
+                    "\"RETENTION_AFTER_TERMINATION\":\"ALLOWED|PROHIBITED|OPT_OUT|UNSPECIFIED\"},"
+                    "\"rationale\":\"one concise sentence\"}\n"
                     "SUBMITTED DOCUMENT LABEL: " + json.dumps(document_label) + "\nPOLICY TEXT:\n" + source
                 )
                 raw = gl.nondet.exec_prompt(prompt, response_format="json")
@@ -426,7 +438,7 @@ class ConsentFirewall(gl.contract.Contract):
 
     @gl.public.view
     def get_contract_version(self) -> str:
-        return "CONSENT_FIREWALL_V2"
+        return "CONSENT_FIREWALL_V3"
 
     @gl.public.view
     def get_profile(self, profile_id: str, version: u256) -> str:

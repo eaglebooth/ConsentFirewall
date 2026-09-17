@@ -32,6 +32,16 @@ attribute 'run_nondet_unsafe'`. Source has been corrected to `run_nondet`, but
 that correction requires a fresh user deployment and a new E2E run. No
 `COMPATIBLE`, `CONFLICT` or `UNRESOLVED` live result has been proven yet.
 
+## V2 semantic execution
+
+Contract [`0x850bf9E22A69C35EbAF67c109F9148e4ee4adee3`](https://explorer-studio-dev.genlayer.com/address/0x850bf9E22A69C35EbAF67c109F9148e4ee4adee3)
+returned `CONSENT_FIREWALL_V2` with zero initial counters. Deterministic role and
+duplicate boundaries finalized as expected. The first semantic assessment
+executed successfully at [`0x6d2679…40de`](https://explorer-studio-dev.genlayer.com/tx/0x6d26795b2b45104ef86c6d004059239712a3fcec15054c6e8eb0478f444040de),
+but authoritative readback was `UNRESOLVED / INVALID_CLASSIFICATION`. No conflict
+or compatible verdict was claimed. V3 fixes the overly ambiguous output-shape
+instruction while retaining exact enum and key validation.
+
 This file intentionally contains no invented transaction hash. Add source parity,
 the failure-first matrix, happy paths and final readbacks only after each
 transaction finalizes.

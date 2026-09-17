@@ -11,6 +11,7 @@ process.stdout.write(JSON.stringify({
   status: tx?.statusName,
   result: tx?.resultName,
   executionResult: leader?.execution_result,
+  calldata: leader?.calldata?.readable,
   resultStatus: leader?.result?.status,
   payload: leader?.result?.payload?.readable ?? leader?.result?.payload,
   stderr: leader?.genvm_result?.stderr,

@@ -8,3 +8,9 @@ for (const functionName of ["get_contract_version", "get_stats"]) {
   const value = await client.readContract({ address, functionName, args: [] });
   process.stdout.write(`${functionName}=${JSON.stringify(value)}\n`);
 }
+
+const checkId = process.argv[3];
+if (checkId) {
+  const value = await client.readContract({ address, functionName: "get_check", args: [checkId] });
+  process.stdout.write(`get_check=${JSON.stringify(value)}\n`);
+}

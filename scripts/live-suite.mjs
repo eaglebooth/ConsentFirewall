@@ -58,7 +58,7 @@ const publicClient = createClient({ chain: studioNext });
 const read = async (name, args = []) => unwrapReadback(await publicClient.readContract({ address: contract, functionName: name, args }));
 
 const version = await read("get_contract_version");
-if (version !== "CONSENT_FIREWALL_V2") throw new Error(`Unexpected contract version ${version}`);
+if (version !== "CONSENT_FIREWALL_V3") throw new Error(`Unexpected contract version ${version}`);
 const response = await fetch(policyUrl);
 if (!response.ok) throw new Error(`Fixture fetch failed ${response.status}`);
 const source = await response.text();
@@ -96,6 +96,7 @@ const permissiveCheck = `allow-check-${tag}`;
 const wrongCheck = `wrong-check-${tag}`;
 const dimensions = ["MODEL_TRAINING", "DATA_SALE", "THIRD_PARTY_SHARING", "BIOMETRIC_PROCESSING", "RETENTION_AFTER_TERMINATION"];
 const rules = value => JSON.stringify(Object.fromEntries(dimensions.map(name => [name, value])));
+process.stdout.write(`scenario=${JSON.stringify({ tag, strictId, permissiveId, snapshotId, wrongSnapshotId, strictCheck, permissiveCheck, wrongCheck })}\n`);
 
 // Failure-first role and input boundaries.
 await write("setup.strictProfile", "create_profile", [strictId, rules("DENY")], strictClient);
@@ -109,7 +110,9 @@ await write("setup.strictCheck", "open_check", [strictCheck, strictId, 1n, snaps
 await write("failure.nonOwnerOpen", "open_check", [`intruder-${tag}`, strictId, 1n, snapshotId], permissiveClient, "PROFILE_OWNER_ONLY");
 await write("happy.strictAssess", "assess_check", [strictCheck], strictClient);
 const strictReceipt = await read("get_check", [strictCheck]);
-if (strictReceipt.outcome !== "CONFLICT") throw new Error(`Expected strict CONFLICT, got ${strictReceipt.outcome}`);
+if (strictReceipt.outcome !== "CONFLICT") {
+  throw new Error(`Expected strict CONFLICT, got ${JSON.stringify(strictReceipt)}`);
+}
 await write("failure.reassessFinal", "assess_check", [strictCheck], strictClient, "CHECK_ALREADY_FINAL");
 
 // Same immutable policy, independently owned permissive profile -> compatible.
