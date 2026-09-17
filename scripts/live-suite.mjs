@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { createAccount, createClient } from "genlayer-js";
 import { transactionResultNumberToName } from "genlayer-js/types";
 import { studioNext } from "./network.mjs";
+import { unwrapReadback } from "./readback.mjs";
 
 const contract = process.env.CONSENT_FIREWALL_ADDRESS?.trim();
 const policyUrl = process.env.CONSENT_POLICY_URL?.trim();
@@ -9,13 +10,6 @@ if (!/^0x[0-9a-fA-F]{40}$/.test(contract || "")) throw new Error("Missing CONSEN
 if (!/^https:\/\/raw\.githubusercontent\.com\/[A-Za-z0-9._-]+\/[A-Za-z0-9._-]+\/[0-9a-fA-F]{40}\/.+/.test(policyUrl || "")) {
   throw new Error("CONSENT_POLICY_URL must be a commit-pinned raw GitHub URL");
 }
-
-const unwrap = raw => {
-  let value = typeof raw === "string" ? JSON.parse(raw) : raw;
-  if (value && typeof value === "object" && Object.keys(value).length === 1 && "result" in value) value = value.result;
-  if (typeof value === "string") { try { return JSON.parse(value); } catch { return value; } }
-  return value;
-};
 
 async function readKeys() {
   if (process.stdin.isTTY && process.stdin.setRawMode) process.stdin.setRawMode(true);
@@ -61,10 +55,10 @@ keys.fill("");
 if (accounts[0].address.toLowerCase() === accounts[1].address.toLowerCase()) throw new Error("Test wallets must differ");
 const [strictClient, permissiveClient] = accounts.map(account => createClient({ chain: studioNext, account }));
 const publicClient = createClient({ chain: studioNext });
-const read = async (name, args = []) => unwrap(await publicClient.readContract({ address: contract, functionName: name, args }));
+const read = async (name, args = []) => unwrapReadback(await publicClient.readContract({ address: contract, functionName: name, args }));
 
 const version = await read("get_contract_version");
-if (version !== "CONSENT_FIREWALL_V1") throw new Error(`Unexpected contract version ${version}`);
+if (version !== "CONSENT_FIREWALL_V2") throw new Error(`Unexpected contract version ${version}`);
 const response = await fetch(policyUrl);
 if (!response.ok) throw new Error(`Fixture fetch failed ${response.status}`);
 const source = await response.text();

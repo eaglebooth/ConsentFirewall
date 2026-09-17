@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "python -m pytest -q",
+    "test": "python -m pytest -q && node --test tests/*.test.mjs",
     "schema:studio-next": "node scripts/check-schema.mjs",
     "deploy:studio-next": "node scripts/deploy.mjs",
     "inspect:studio-next": "node scripts/inspect.mjs",

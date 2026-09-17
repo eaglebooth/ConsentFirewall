@@ -61,12 +61,16 @@ genvm-lint contracts\consent_firewall.py
 npm run schema:studio-next
 ```
 
-## Studio Next deployment
+## Studio Next test deployment (superseded)
 
 - Network: Studio Next, chain `61997`
 - Contract: [`0x8887E688Bc8F53be27052Ab559E03b542116B4A9`](https://explorer-studio-dev.genlayer.com/address/0x8887E688Bc8F53be27052Ab559E03b542116B4A9)
 - Version readback: `CONSENT_FIREWALL_V1`
 - Initial state: zero profiles, versions, snapshots, checks and outcomes
+- The first live semantic assessment failed because this deployed source called
+  `gl.vm.run_nondet_unsafe`, unavailable in the Studio Next runtime. The local
+  V2 source now uses `gl.vm.run_nondet`; a fresh deployment is required before
+  claiming semantic E2E success. See `docs/LIVE_E2E_EVIDENCE.md`.
 
 ## Safe claim boundary
 

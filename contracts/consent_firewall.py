@@ -385,7 +385,7 @@ class ConsentFirewall(gl.contract.Contract):
                 and str(right.get("observed", "")) == source_sha256
             )
 
-        raw_result = gl.vm.run_nondet_unsafe(classify, validate)
+        raw_result = gl.vm.run_nondet(classify, validate)
         try:
             result = json.loads(raw_result)
         except Exception:
@@ -426,7 +426,7 @@ class ConsentFirewall(gl.contract.Contract):
 
     @gl.public.view
     def get_contract_version(self) -> str:
-        return "CONSENT_FIREWALL_V1"
+        return "CONSENT_FIREWALL_V2"
 
     @gl.public.view
     def get_profile(self, profile_id: str, version: u256) -> str:

@@ -51,7 +51,8 @@ def test_custom_validator_compares_consequential_vector():
     assert "left[\"dimensions\"] == right[\"dimensions\"]" in SOURCE
     assert 'str(left.get("observed", "")) == source_sha256' in SOURCE
     assert 'check.observed_sha256 = source_sha256' in SOURCE
-    assert "gl.vm.run_nondet_unsafe(classify, validate)" in SOURCE
+    assert "gl.vm.run_nondet(classify, validate)" in SOURCE
+    assert "run_nondet_unsafe" not in SOURCE
 
 
 def test_source_failure_is_fail_closed():
